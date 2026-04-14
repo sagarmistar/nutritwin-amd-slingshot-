@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta name="theme-color" content="#faf9f6"/>
+<meta name="description" content="Metabolic Health Dashboard — your personal wellness companion"/>
+<title>MetaFlow — Metabolic Health</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "inverse-primary": "#d7f6d2",
+        "on-primary": "#e9ffe4",
+        "primary": "#4b664a",
+        "surface-container-high": "#e7e9e4",
+        "tertiary-fixed-dim": "#e7e7ce",
+        "on-tertiary-container": "#5c5d4a",
+        "on-secondary-container": "#704a00",
+        "surface-bright": "#faf9f6",
+        "on-tertiary-fixed-variant": "#666854",
+        "secondary-dim": "#724b00",
+        "primary-dim": "#3f593f",
+        "on-secondary-fixed-variant": "#7d5300",
+        "surface-container-low": "#f4f4f0",
+        "on-tertiary": "#fbfae1",
+        "tertiary-fixed": "#f5f5dc",
+        "inverse-surface": "#0d0f0d",
+        "primary-container": "#ccebc7",
+        "on-surface-variant": "#5d605c",
+        "surface-container-highest": "#e1e3de",
+        "on-primary-fixed": "#2c452c",
+        "on-secondary": "#fff8f2",
+        "on-error-container": "#6e1400",
+        "tertiary-container": "#f5f5dc",
+        "surface-dim": "#d9dbd6",
+        "error-container": "#fd795a",
+        "inverse-on-surface": "#9d9d9a",
+        "surface": "#faf9f6",
+        "error-dim": "#791903",
+        "secondary-fixed-dim": "#ffcc81",
+        "on-primary-container": "#3e583d",
+        "error": "#a73b21",
+        "secondary-fixed": "#ffddb0",
+        "on-secondary-fixed": "#583900",
+        "primary-fixed": "#ccebc7",
+        "surface-tint": "#4b664a",
+        "surface-variant": "#e1e3de",
+        "surface-container": "#eeeeea",
+        "on-primary-fixed-variant": "#476246",
+        "on-error": "#fff7f6",
+        "surface-container-lowest": "#ffffff",
+        "tertiary-dim": "#535442",
+        "secondary-container": "#ffddb0",
+        "tertiary": "#5f604d",
+        "primary-fixed-dim": "#beddba",
+        "on-background": "#303330",
+        "on-tertiary-fixed": "#494b39",
+        "secondary": "#815700",
+        "on-surface": "#303330",
+        "outline": "#797b78",
+        "background": "#faf9f6",
+        "outline-variant": "#b0b3ae"
+      },
+      borderRadius: {
+        "DEFAULT": "1rem",
+        "lg": "2rem",
+        "xl": "3rem",
+        "full": "9999px"
+      },
+      fontFamily: {
+        "headline": ["Plus Jakarta Sans"],
+        "body": ["Lexend"],
+        "label": ["Lexend"]
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  /* ── Base ── */
+  * { box-sizing: border-box; }
+  body { min-height: 100dvh; }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* ── Visual Effects ── */
+  .pulse-glow {
+    background: radial-gradient(circle, rgba(204,235,199,0.8) 0%, rgba(204,235,199,0) 70%);
+  }
+  .editorial-shadow { box-shadow: 0 12px 40px rgba(48,51,48,0.05); }
+
+  /* ── Animations ── */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14%       { transform: scale(1.1); }
+    28%       { transform: scale(1); }
+    42%       { transform: scale(1.06); }
+    70%       { transform: scale(1); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes barGrow {
+    from { width: 0; }
+  }
+
+  .slide-up-1 { animation: slideUp 0.5s ease both; animation-delay: 0s; }
+  .slide-up-2 { animation: slideUp 0.5s ease both; animation-delay: 0.12s; }
+  .slide-up-3 { animation: slideUp 0.5s ease both; animation-delay: 0.24s; }
+  .slide-up-4 { animation: slideUp 0.5s ease both; animation-delay: 0.36s; }
+
+  .heartbeat { animation: heartbeat 1.8s ease-in-out infinite; }
+  .bar-grow  { animation: barGrow 1s ease both; animation-delay: 0.3s; }
+
+  /* ── Cards ── */
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 56px rgba(48,51,48,0.10);
+  }
+  .card-hover:active { transform: scale(0.98); }
+
+  /* ── Tabs / Nav ── */
+  .tab-active   { background: #ccebc7; color: #4b664a; }
+  .tab-inactive { color: rgba(48,51,48,0.45); }
+
+  /* ── State Buttons ── */
+  .state-btn {
+    transition: all 0.18s ease;
+  }
+  .state-btn.active {
+    background: #ccebc7;
+    color: #4b664a;
+    border-color: #4b664a;
+    font-weight: 600;
+  }
+  .state-btn:not(.active) {
+    background: transparent;
+    color: #5d605c;
+    border-color: #b0b3ae;
+  }
+  .state-btn:hover:not(.active) { background: #f4f4f0; }
+
+  /* ── Food Grid Cards ── */
+  .food-card {
+    transition: all 0.18s ease;
+    border: 2px solid transparent;
+  }
+  .food-card.selected { border-color: #4b664a; background: #f4f4f0; }
+  .food-card:active   { transform: scale(0.96); }
+
+  /* ── Score Bar ── */
+  .score-bar { transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* ── Analysis Panel ── */
+  #analysisResult {
+    transition: all 0.3s ease;
+  }
+  #analysisResult.show {
+    animation: slideUp 0.35s ease both;
+  }
+
+  /* ── Macro Pills ── */
+  .macro-pill {
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(255,255,255,0.7);
+    border-radius: 0.75rem; padding: 0.75rem 0.5rem;
+    flex: 1;
+  }
+
+  /* ── Toast ── */
+  #toast {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(-8px);
+  }
+  #toast.visible {
+    opacity: 1 !important;
+    transform: translateY(0);
+  }
+
+  /* ── Walk Button ── */
+  .walk-btn {
+    transition: all 0.2s ease;
+  }
+  .walk-btn:active { transform: scale(0.96); }
+  .walk-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+  /* ── Insights Bars ── */
+  .insight-bar {
+    height: 6px; border-radius: 9999px; overflow: hidden;
+    background: #eeeeea;
+  }
+  .insight-bar-fill {
+    height: 100%; border-radius: 9999px;
+    background: #4b664a;
+    transition: width 1s ease;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #b0b3ae; border-radius: 9999px; }
+</style>
+</head>
+
+<body class="bg-background text-on-background font-body selection:bg-primary-container">
+
+<!-- ═══════════════════════════════════════════
+     TOP APP BAR
+════════════════════════════════════════════ -->
+<header class="fixed top-0 w-full z-50 bg-[#faf9f6]/75 backdrop-blur-lg border-b border-surface-container-low/50">
+  <div class="flex justify-between items-center px-6 h-16 w-full max-w-screen-xl mx-auto">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-primary-container border-2 border-primary-fixed-dim flex items-center justify-center">
+        <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings:'FILL' 1;">person</span>
+      </div>
+      <div>
+        <h1 class="font-headline font-bold text-base text-primary leading-tight">Hello, Friend</h1>
+        <p class="text-[10px] text-on-surface-variant leading-tight" id="currentTime"></p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1">
+      <button id="darkToggle" onclick="toggleDark()" class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors" title="Toggle theme">
+        <span class="material-symbols-outlined">light_mode</span>
+      </button>
+      <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors relative" onclick="showToast('No new notifications')">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     MAIN CONTENT (Tab panels)
+════════════════════════════════════════════ -->
+<main class="pt-24 pb-36 px-6 max-w-screen-xl mx-auto">
+
+  <!-- ── TODAY TAB ── -->
+  <div id="panel-today">
+
+    <!-- Hero: Living Pulse -->
+    <section class="relative py-8 flex flex-col items-center justify-center overflow-hidden mb-8 slide-up-1">
+      <div class="absolute inset-0 pulse-glow animate-pulse rounded-3xl"></div>
+      <div class="relative z-10 text-center">
+        <div class="mb-6 inline-flex items-center justify-center p-6 bg-surface-container-lowest rounded-full editorial-shadow border border-surface-container-low">
+          <div class="w-32 h-32 flex items-center justify-center bg-primary-container rounded-full heartbeat">
+            <span class="material-symbols-outlined text-primary" style="font-size:56px; font-variation-settings:'FILL' 1;">favorite</span>
+          </div>
+        </div>
+        <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Steady &amp; Calm</h2>
+        <p class="text-on-surface-variant max-w-xs mx-auto text-sm">Your metabolic rhythm is beautifully balanced this morning. You're ready for the day.</p>
+        <div class="mt-4 flex items-center justify-center gap-2">
+          <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary-container text-primary text-xs font-semibold rounded-full">
+            <span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse inline-block"></span>
+            Live Monitoring
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Metrics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 slide-up-2">
+
+      <!-- Glucose Card -->
+      <div class="bg-surface-container-low rounded-xl p-8 flex flex-col justify-between card-hover">
+        <div class="flex justify-between items-start mb-10">
+          <div>
+            <p class="text-label text-on-surface-variant text-xs font-medium mb-1 uppercase tracking-wider">Glucose Level</p>
+            <h3 class="font-headline text-2xl font-bold text-primary">Stable</h3>
+            <p class="text-xs text-on-surface-variant mt-1">5.2 mmol/L</p>
+          </div>
+          <div class="p-3 bg-surface-container-lowest rounded-xl editorial-shadow">
+            <span class="material-symbols-outlined text-primary">analytics</span>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="flex justify-between text-[10px] text-on-surface-variant mb-1">
+            <span>Low</span><span>Optimal</span><span>High</span>
+          </div>
+          <div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+            <div class="h-full bg-primary rounded-full bar-grow" style="width:67%"></div>
+          </div>
+          <p class="text-sm text-on-surface-variant leading-relaxed">No spikes detected since breakfast. Your energy should remain consistent for the next 3 hours.</p>
+        </div>
+      </div>
+
+      <!-- Hydration Card -->
+      <div class="bg-tertiary-container rounded-xl p-8 flex flex-col justify-between card-hover">
+        <div class="flex justify-between items-start mb-10">
+          <div>
+            <p class="text-label text-on-tertiary-container text-xs font-medium mb-1 uppercase tracking-wider">Hydration</p>
+            <h3 class="font-headline text-2xl font-bold text-tertiary">Flowing Well</h3>
+            <p class="text-xs text-on-tertiary-container opacity-70 mt-1">1.2L of 2.5L goal</p>
+          </div>
+          <div class="p-3 bg-surface-container-lowest rounded-xl editorial-shadow">
+            <span class="material-symbols-outlined text-tertiary" style="font-variation-settings:'FILL' 1;">water_drop</span>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="flex gap-1.5 items-end h-16">
+            <div class="flex-1 bg-tertiary rounded-full opacity-25" style="height:40%"></div>
+            <div class="flex-1 bg-tertiary rounded-full opacity-50" style="height:65%"></div>
+            <div class="flex-1 bg-tertiary rounded-full" style="height:100%"></div>
+            <div class="flex-1 bg-surface-container-lowest rounded-full border border-outline-variant/30" style="height:100%"></div>
+            <div class="flex-1 bg-surface-container-lowest rounded-full border border-outline-variant/30" style="height:100%"></div>
+          </div>
+          <p class="text-sm text-on-tertiary-container leading-relaxed">A small glass of water before your next meeting would be perfect.</p>
+        </div>
+      </div>
+
+      <!-- Energy Forecast Card -->
+      <div class="md:col-span-2 lg:col-span-1 bg-surface-container-lowest rounded-xl p-8 editorial-shadow border border-surface-container-low flex flex-col card-hover">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <p class="text-label text-on-surface-variant text-xs font-medium mb-1 uppercase tracking-wider">Energy Forecast</p>
+            <h3 class="font-headline text-2xl font-bold text-on-surface">Next Meal</h3>
+          </div>
+          <div class="text-right">
+            <p class="text-label text-primary font-bold text-sm">12:30 PM</p>
+            <p class="text-[10px] text-on-surface-variant">Recommended</p>
+          </div>
+        </div>
+        <div class="flex-grow flex items-end justify-between gap-1.5 h-32 mb-6">
+          <div class="w-full bg-primary-container rounded-t-full opacity-30" style="height:45%"></div>
+          <div class="w-full bg-primary-container rounded-t-full opacity-55" style="height:70%"></div>
+          <div class="w-full bg-primary-container rounded-t-full" style="height:100%"></div>
+          <div class="w-full bg-primary-container rounded-t-full opacity-65" style="height:75%"></div>
+          <div class="w-full bg-primary-container rounded-t-full opacity-45" style="height:50%"></div>
+          <div class="w-full bg-primary-container rounded-t-full opacity-20" style="height:25%"></div>
+        </div>
+        <div class="flex justify-between items-center bg-surface-container rounded-xl p-4">
+          <span class="text-xs font-medium text-on-surface-variant">Predicted Hunger</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-bold text-on-surface">Gentle</span>
+            <span class="material-symbols-outlined text-on-surface-variant" style="font-size:14px">info</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Section -->
+    <section class="flex flex-col md:flex-row gap-6 mb-8 slide-up-3">
+      <div class="w-full md:w-3/5 bg-primary-container/40 rounded-xl p-10 overflow-hidden relative">
+        <div class="relative z-10 space-y-4">
+          <span class="inline-block text-xs font-semibold text-primary bg-primary-container px-3 py-1 rounded-full">Recommended Now</span>
+          <h4 class="font-headline text-xl font-bold text-on-primary-container">Mindful Movement</h4>
+          <p class="text-on-primary-container/80 max-w-sm text-sm">Your metabolism responds best to light activity right now. A 10-minute walk would be ideal.</p>
+          <button id="walkBtn" class="walk-btn px-6 py-3 bg-primary text-on-primary rounded-xl font-medium shadow-lg shadow-primary/20" onclick="startWalk()">
+            Start Suggested Walk
+          </button>
+        </div>
+        <div class="absolute -bottom-12 -right-12 w-56 h-56 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+      </div>
+      <div class="w-full md:w-2/5 p-8 bg-tertiary-fixed rounded-xl flex flex-col justify-center card-hover" onclick="setTab('meals')">
+        <span class="material-symbols-outlined text-tertiary mb-4 text-3xl" style="font-variation-settings:'FILL' 1;">restaurant_menu</span>
+        <h4 class="font-headline text-lg font-bold text-on-tertiary-fixed mb-2">Recipe of the Day</h4>
+        <p class="text-on-tertiary-fixed-variant text-sm mb-4">A balanced quinoa bowl would complement your energy levels perfectly today.</p>
+        <span class="text-primary font-bold text-sm flex items-center gap-1 group">
+          View Recipe
+          <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform" style="font-size:16px">arrow_forward</span>
+        </span>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── MEALS TAB ── -->
+  <div id="panel-meals" class="hidden">
+    <div class="mb-8 slide-up-1">
+      <h2 class="font-headline text-2xl font-extrabold text-on-surface mb-1">Food Choice Advisor</h2>
+      <p class="text-on-surface-variant text-sm">AI-powered nutritional analysis for your metabolic state.</p>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl p-8 editorial-shadow border border-surface-container-low slide-up-2">
+      <!-- State Selector -->
+      <div class="mb-6">
+        <p class="text-xs text-on-surface-variant mb-3 font-semibold uppercase tracking-wider">Your current metabolic state</p>
+        <div class="flex flex-wrap gap-2" id="stateSelector">
+          <button class="state-btn active px-4 py-2 rounded-full text-sm border" data-state="stable" onclick="selectState('stable')">⚡ Stable Energy</button>
+          <button class="state-btn px-4 py-2 rounded-full text-sm border" data-state="dip" onclick="selectState('dip')">😴 Energy Dip</button>
+          <button class="state-btn px-4 py-2 rounded-full text-sm border" data-state="post_exercise" onclick="selectState('post_exercise')">🏃 Post-Exercise</button>
+          <button class="state-btn px-4 py-2 rounded-full text-sm border" data-state="stressed" onclick="selectState('stressed')">😤 Stressed</button>
+        </div>
+      </div>
+
+      <!-- State description -->
+      <div id="stateDesc" class="mb-6 p-4 bg-surface-container rounded-xl">
+        <p class="text-sm text-on-surface-variant" id="stateDescText">Maintaining balanced blood sugar — focus on low-GI, high-fiber foods to keep you going.</p>
+      </div>
+
+      <!-- Food Grid -->
+      <p class="text-xs text-on-surface-variant mb-3 font-semibold uppercase tracking-wider">Tap a food to analyze it</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6" id="foodGrid"></div>
+
+      <!-- Analysis Result -->
+      <div id="analysisResult" class="hidden rounded-xl p-6 border" style="background:rgba(204,235,199,0.2); border-color:#ccebc7;">
+        <div class="flex items-start gap-4">
+          <div class="p-2.5 bg-surface-container-lowest rounded-xl flex-shrink-0 editorial-shadow">
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1; font-size:24px;" id="resultIcon">check_circle</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+              <h4 class="font-headline font-bold text-on-surface text-lg" id="resultFood">Quinoa Bowl</h4>
+              <span class="text-xs px-3 py-1 rounded-full font-semibold" id="resultBadge">Excellent</span>
+            </div>
+            <p class="text-sm text-on-surface-variant mb-4 leading-relaxed" id="resultReason">Great choice for stable energy.</p>
+            <div class="grid grid-cols-4 gap-2" id="resultMacros"></div>
+            <div class="mt-4 flex items-center gap-2">
+              <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                <div id="resultScoreBar" class="h-full bg-primary rounded-full score-bar" style="width:0%"></div>
+              </div>
+              <span id="resultScore" class="text-sm font-bold text-primary min-w-[36px] text-right">0/100</span>
+            </div>
+            <p class="text-[10px] text-on-surface-variant mt-1">Compatibility score for your current state</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── INSIGHTS TAB ── -->
+  <div id="panel-insights" class="hidden">
+    <div class="mb-8 slide-up-1">
+      <h2 class="font-headline text-2xl font-extrabold text-on-surface mb-1">Weekly Insights</h2>
+      <p class="text-on-surface-variant text-sm">Your metabolic trends and patterns at a glance.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 slide-up-2">
+      <!-- Weekly Glucose -->
+      <div class="bg-surface-container-lowest rounded-xl p-8 editorial-shadow border border-surface-container-low">
+        <p class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider mb-4">Glucose Stability — 7 days</p>
+        <div class="space-y-3">
+          <div class="flex items-center gap-3"><span class="text-xs text-on-surface-variant w-8">Mon</span><div class="insight-bar flex-1"><div class="insight-bar-fill" style="width:82%"></div></div><span class="text-xs font-bold text-on-surface w-8 text-right">82%</span></div>
+          <div class="flex items-center gap-3"><span class="text-xs text-on-surface-variant w-8">Tue</span><div class="insight-bar flex-1"><div class="insight-bar-fill" style="width:90%"></div></div><span class="text-xs font-bold text-on-surface w-8 text-right">90%</span></div>
+          <div class="flex items-center gap-3"><span class="text-xs text-on-surface-variant w-8">Wed</span><div class="insight-bar flex-1"><div class="insight-bar-fill" style="width:67%"></div></div><span class="text-xs font-bold text-on-surface w-8 text-right">67%</span></div>
+          <div class="flex items-center gap-3"><span class="text-xs text-on-surface-variant w-8">Thu</span><div class="insight-bar flex-1"><div class="insight-bar-fill" style="width:75%"></div></div><span class="text-xs font-bold text-on-surface w-8 text-right">75%</span></div>
+          <div class="flex items-center gap-3"><span class="text-xs text-on-surface-variant w-8">Fri</span><div class="insight-bar flex-1"><div class="insight-bar-fill" style="width:88%"></div></div><span class="text-xs font-bold text-on-surface w-8 text-right">88%</span></div>
+          <div class="flex items-center gap-3"><span class="text-xs text-on-surface-variant w-8">Sat</span><div class="insight-bar flex-1"><div class="insight-bar-fill" style="width:72%"></div></div><span class="text-xs font-bold text-on-surface w-8 text-right">72%</span></div>
+          <div class="flex items-center gap-3"><span class="text-xs text-on-surface-variant w-8">Sun</span><div class="insight-bar flex-1"><div class="insight-bar-fill bg-primary-container" style="width:95%"></div></div><span class="text-xs font-bold text-primary w-8 text-right">95%</span></div>
+        </div>
+        <p class="text-xs text-on-surface-variant mt-4">🏆 Best day: Today — keep it up!</p>
+      </div>
+      <!-- Summary Metrics -->
+      <div class="space-y-4">
+        <div class="bg-primary-container/30 rounded-xl p-6 card-hover">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs text-primary font-semibold uppercase tracking-wider">Avg Daily Hydration</p>
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1; font-size:20px;">water_drop</span>
+          </div>
+          <p class="font-headline text-3xl font-extrabold text-primary">1.8L</p>
+          <p class="text-xs text-on-surface-variant mt-1">↑ 12% from last week</p>
+        </div>
+        <div class="bg-tertiary-container rounded-xl p-6 card-hover">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs text-tertiary font-semibold uppercase tracking-wider">Steps This Week</p>
+            <span class="material-symbols-outlined text-tertiary" style="font-variation-settings:'FILL' 1; font-size:20px;">directions_walk</span>
+          </div>
+          <p class="font-headline text-3xl font-extrabold text-tertiary">42,310</p>
+          <p class="text-xs text-on-tertiary-container mt-1">Goal: 70,000 steps</p>
+        </div>
+        <div class="bg-surface-container-lowest rounded-xl p-6 border border-surface-container-low editorial-shadow card-hover">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs text-on-surface-variant font-semibold uppercase tracking-wider">Metabolic Score</p>
+            <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1; font-size:20px;">favorite</span>
+          </div>
+          <p class="font-headline text-3xl font-extrabold text-on-surface">84 <span class="text-base font-normal text-on-surface-variant">/ 100</span></p>
+          <p class="text-xs text-on-surface-variant mt-1">Excellent — top 15% of users</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PLANS TAB ── -->
+  <div id="panel-plans" class="hidden">
+    <div class="mb-8 slide-up-1">
+      <h2 class="font-headline text-2xl font-extrabold text-on-surface mb-1">This Week's Plan</h2>
+      <p class="text-on-surface-variant text-sm">Your personalized metabolic schedule.</p>
+    </div>
+    <div class="space-y-4 slide-up-2" id="plansList"></div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     BOTTOM NAV
+════════════════════════════════════════════ -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-[#faf9f6]/80 backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-4px_40px_rgba(48,51,48,0.06)] px-4 pb-6 pt-3 flex justify-around items-center border-t border-surface-container-low/30">
+  <button id="nav-today" onclick="setTab('today')" class="flex flex-col items-center tab-active rounded-full px-5 py-2 transition-all active:scale-90">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1; font-size:22px;">wb_sunny</span>
+    <span class="text-[11px] tracking-wide font-medium mt-0.5">Today</span>
+  </button>
+  <button id="nav-meals" onclick="setTab('meals')" class="flex flex-col items-center tab-inactive px-5 py-2 rounded-full transition-all active:scale-90">
+    <span class="material-symbols-outlined" style="font-size:22px;">restaurant</span>
+    <span class="text-[11px] tracking-wide font-medium mt-0.5">Meals</span>
+  </button>
+  <button id="nav-insights" onclick="setTab('insights')" class="flex flex-col items-center tab-inactive px-5 py-2 rounded-full transition-all active:scale-90">
+    <span class="material-symbols-outlined" style="font-size:22px;">analytics</span>
+    <span class="text-[11px] tracking-wide font-medium mt-0.5">Insights</span>
+  </button>
+  <button id="nav-plans" onclick="setTab('plans')" class="flex flex-col items-center tab-inactive px-5 py-2 rounded-full transition-all active:scale-90">
+    <span class="material-symbols-outlined" style="font-size:22px;">calendar_today</span>
+    <span class="text-[11px] tracking-wide font-medium mt-0.5">Plans</span>
+  </button>
+</nav>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] bg-on-surface text-surface px-6 py-3 rounded-full text-sm font-medium opacity-0 pointer-events-none whitespace-nowrap shadow-xl"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+
+// ─────────────────────────────────────────────
+// MOCK NUTRITIONAL DATABASE
+// ─────────────────────────────────────────────
+const FOOD_DB = [
+  { id:1,  name:"Quinoa Bowl",       emoji:"🥗", kcal:380, protein:14, carbs:58, fat:9,  gi:35, fiber:8,  category:"whole_grain", tags:["anti-inflammatory","balanced","high-fiber"] },
+  { id:2,  name:"Greek Yogurt",      emoji:"🥛", kcal:150, protein:17, carbs:9,  fat:4,  gi:11, fiber:0,  category:"dairy",       tags:["probiotic","high-protein"] },
+  { id:3,  name:"Banana",            emoji:"🍌", kcal:105, protein:1.3,carbs:27, fat:0.4,gi:51, fiber:3.1,category:"fruit",       tags:["quick-energy","potassium"] },
+  { id:4,  name:"Almond Butter Toast",emoji:"🍞",kcal:290, protein:9,  carbs:28, fat:16, gi:40, fiber:4,  category:"whole_grain", tags:["healthy-fat","sustained-energy"] },
+  { id:5,  name:"Mixed Nuts",        emoji:"🥜", kcal:180, protein:5,  carbs:7,  fat:16, gi:15, fiber:2,  category:"nut",         tags:["heart-healthy","slow-release"] },
+  { id:6,  name:"Lentil Soup",       emoji:"🍲", kcal:230, protein:18, carbs:40, fat:1,  gi:29, fiber:16, category:"legume",      tags:["high-fiber","plant-protein"] },
+  { id:7,  name:"Chocolate Bar",     emoji:"🍫", kcal:240, protein:3,  carbs:28, fat:14, gi:70, fiber:1,  category:"processed",   tags:["quick-sugar","mood-boost"] },
+  { id:8,  name:"Avocado Salad",     emoji:"🥑", kcal:210, protein:3,  carbs:12, fat:18, gi:10, fiber:7,  category:"vegetable",   tags:["anti-inflammatory","omega-rich"] },
+  { id:9,  name:"Oatmeal",           emoji:"🥣", kcal:160, protein:6,  carbs:28, fat:3,  gi:55, fiber:4,  category:"whole_grain", tags:["beta-glucan","heart-healthy"] },
+  { id:10, name:"Chicken Breast",    emoji:"🍗", kcal:165, protein:31, carbs:0,  fat:4,  gi:0,  fiber:0,  category:"protein",     tags:["lean-protein","muscle-repair"] },
+  { id:11, name:"Energy Drink",      emoji:"⚡", kcal:110, protein:0,  carbs:28, fat:0,  gi:90, fiber:0,  category:"processed",   tags:["stimulant","sugar-spike"] },
+  { id:12, name:"Salmon Fillet",     emoji:"🐟", kcal:208, protein:28, carbs:0,  fat:10, gi:0,  fiber:0,  category:"protein",     tags:["omega-3","brain-food","anti-inflammatory"] },
+  { id:13, name:"Sweet Potato",      emoji:"🍠", kcal:130, protein:2,  carbs:30, fat:0,  gi:44, fiber:4,  category:"vegetable",   tags:["beta-carotene","sustained-energy"] },
+  { id:14, name:"Chia Pudding",      emoji:"🫙", kcal:200, protein:8,  carbs:22, fat:10, gi:1,  fiber:11, category:"whole_grain", tags:["omega-3","high-fiber","anti-inflammatory"] },
+  { id:15, name:"White Rice",        emoji:"🍚", kcal:200, protein:4,  carbs:45, fat:0,  gi:72, fiber:0,  category:"grain",       tags:["quick-carbs"] },
+  { id:16, name:"Boiled Eggs",       emoji:"🥚", kcal:155, protein:13, carbs:1,  fat:11, gi:0,  fiber:0,  category:"protein",     tags:["complete-protein","brain-food"] },
+];
+
+// ─────────────────────────────────────────────
+// METABOLIC STATE PROFILES
+// ─────────────────────────────────────────────
+const METABOLIC_STATES = {
+  stable: {
+    label: "Stable Energy",
+    desc: "Maintaining balanced blood sugar — focus on low-GI, high-fiber foods to sustain energy.",
+    avoidHighGI: true, needsProtein: true, needsFiber: true,
+    avoidStimulant: false, preferQuickEnergy: false, maxKcal: 400, minProtein: 6
+  },
+  dip: {
+    label: "Energy Dip",
+    desc: "Your energy is low — choose quick-release carbs to restore blood glucose rapidly.",
+    avoidHighGI: false, needsProtein: false, needsFiber: false,
+    avoidStimulant: false, preferQuickEnergy: true, maxKcal: 200, minProtein: 0
+  },
+  post_exercise: {
+    label: "Post-Exercise",
+    desc: "Recovery window is open — prioritize protein and replenish glycogen stores.",
+    avoidHighGI: false, needsProtein: true, needsFiber: false,
+    avoidStimulant: false, preferQuickEnergy: false, maxKcal: 500, minProtein: 20
+  },
+  stressed: {
+    label: "Stressed",
+    desc: "Cortisol is elevated — avoid stimulants and choose calming, nutrient-dense foods.",
+    avoidHighGI: true, needsProtein: true, needsFiber: true,
+    avoidStimulant: true, preferQuickEnergy: false, maxKcal: 350, minProtein: 8
+  }
+};
+
+// ─────────────────────────────────────────────
+// FOOD CHOICE ANALYSIS FUNCTION
+// ─────────────────────────────────────────────
+function analyzeFoodChoice(food, stateKey) {
+  const state = METABOLIC_STATES[stateKey];
+  let score = 50;
+  const reasons = [];
+  const warnings = [];
+
+  // Glycemic Index scoring
+  if (state.avoidHighGI) {
+    if (food.gi <= 35)       { score += 30; reasons.push("Low GI keeps blood sugar stable"); }
+    else if (food.gi <= 55)  { score += 12; reasons.push("Moderate GI — acceptable choice"); }
+    else                     { score -= 25; warnings.push("High GI may cause energy spike & crash"); }
+  } else if (state.preferQuickEnergy) {
+    if (food.gi >= 55)       { score += 28; reasons.push("Quick-release carbs restore energy fast"); }
+    else if (food.gi >= 40)  { score += 12; }
+    else                     { score -= 10; warnings.push("Low GI won't restore energy quickly enough"); }
+  }
+
+  // Protein scoring
+  if (state.needsProtein) {
+    if (food.protein >= state.minProtein + 5) { score += 25; reasons.push("Excellent protein supports recovery & satiety"); }
+    else if (food.protein >= state.minProtein){ score += 15; reasons.push("Adequate protein for your current needs"); }
+    else if (food.protein < 5)                { score -= 10; warnings.push("Very low protein"); }
+  }
+
+  // Fiber scoring
+  if (state.needsFiber) {
+    if (food.fiber >= 8)     { score += 20; reasons.push("High fiber for sustained satiety"); }
+    else if (food.fiber >= 4){ score += 10; }
+    else if (food.fiber < 2) { score -= 5; warnings.push("Low fiber content"); }
+  }
+
+  // Calorie ceiling
+  if (food.kcal > state.maxKcal) {
+    score -= 15; warnings.push("Slightly above ideal portion for your state");
+  } else {
+    score += 8;
+  }
+
+  // Stimulant check
+  if (state.avoidStimulant && food.tags.includes("stimulant")) {
+    score -= 35; warnings.push("Stimulants amplify cortisol — avoid when stressed");
+  }
+
+  // Processed food penalty
+  if (food.category === "processed") {
+    score -= 20; warnings.push("Processed food — low nutrient density");
+  }
+
+  // Bonus tags
+  if (food.tags.includes("anti-inflammatory")) score += 10;
+  if (food.tags.includes("balanced"))          score += 5;
+  if (food.tags.includes("omega-3"))           score += 5;
+  if (food.tags.includes("high-fiber"))        score += 5;
+
+  score = Math.round(Math.max(0, Math.min(100, score)));
+
+  let rating, bgColor, textColor, icon;
+  if (score >= 72)      { rating="Excellent"; bgColor="#ccebc7"; textColor="#3e583d"; icon="check_circle"; }
+  else if (score >= 52) { rating="Good";      bgColor="#f5f5dc"; textColor="#5c5d4a"; icon="thumb_up"; }
+  else if (score >= 35) { rating="Okay";      bgColor="#ffddb0"; textColor="#583900"; icon="info"; }
+  else                  { rating="Avoid";     bgColor="#fd795a"; textColor="#6e1400"; icon="warning"; }
+
+  const reason = warnings.length > 0 ? warnings[0] : (reasons[0] || "Nutritionally neutral for your current state");
+
+  return { score, rating, bgColor, textColor, icon, reason };
+}
+
+// ─────────────────────────────────────────────
+// RENDER FOOD GRID
+// ─────────────────────────────────────────────
+let currentState = 'stable';
+let selectedFoodId = null;
+
+function renderFoodGrid() {
+  const grid = document.getElementById('foodGrid');
+  if (!grid) return;
+  grid.innerHTML = FOOD_DB.map(food => {
+    const r = analyzeFoodChoice(food, currentState);
+    const isSelected = selectedFoodId === food.id;
+    const scoreColor = r.score >= 72 ? '#4b664a' : r.score >= 52 ? '#5f604d' : r.score >= 35 ? '#815700' : '#a73b21';
+    return `
+      <button class="food-card ${isSelected ? 'selected' : ''} bg-surface-container-low hover:bg-surface-container rounded-xl p-4 text-left transition-all"
+              onclick="showFoodAnalysis(${food.id})">
+        <div class="text-2xl mb-2">${food.emoji}</div>
+        <p class="text-xs font-semibold text-on-surface leading-snug mb-3">${food.name}</p>
+        <div class="flex items-center gap-1.5">
+          <div class="h-1.5 flex-1 bg-surface-container rounded-full overflow-hidden">
+            <div class="h-full rounded-full score-bar" style="width:${r.score}%; background:${scoreColor}"></div>
+          </div>
+          <span class="text-[10px] font-bold min-w-[20px] text-right" style="color:${scoreColor}">${r.score}</span>
+        </div>
+      </button>`;
+  }).join('');
+}
+
+function showFoodAnalysis(foodId) {
+  selectedFoodId = foodId;
+  const food = FOOD_DB.find(f => f.id === foodId);
+  const r = analyzeFoodChoice(food, currentState);
+
+  document.getElementById('resultFood').textContent = `${food.emoji} ${food.name}`;
+  const icon = document.getElementById('resultIcon');
+  icon.textContent = r.icon;
+  icon.style.color = r.textColor;
+
+  document.getElementById('resultReason').textContent = r.reason;
+
+  const badge = document.getElementById('resultBadge');
+  badge.textContent = r.rating;
+  badge.style.background = r.bgColor;
+  badge.style.color = r.textColor;
+
+  document.getElementById('resultMacros').innerHTML = [
+    { label:'Calories', val:`${food.kcal}`, unit:'kcal', icon:'local_fire_department' },
+    { label:'Protein',  val:`${food.protein}`, unit:'g', icon:'fitness_center' },
+    { label:'Fiber',    val:`${food.fiber}`,   unit:'g', icon:'grass' },
+    { label:'GI Index', val:`${food.gi}`,      unit:'',  icon:'show_chart' },
+  ].map(m => `
+    <div style="background:rgba(255,255,255,0.65); border-radius:0.75rem; padding:0.6rem; text-align:center;">
+      <span class="material-symbols-outlined" style="font-size:14px; color:#4b664a; display:block; margin-bottom:2px;">${m.icon}</span>
+      <p style="font-size:10px; color:#5d605c;">${m.label}</p>
+      <p style="font-size:13px; font-weight:700; color:#303330;">${m.val}<span style="font-weight:400; font-size:10px;">${m.unit}</span></p>
+    </div>`).join('');
+
+  const panel = document.getElementById('analysisResult');
+  panel.classList.remove('hidden');
+  panel.classList.add('show');
+
+  setTimeout(() => {
+    document.getElementById('resultScoreBar').style.width = r.score + '%';
+    document.getElementById('resultScore').textContent = r.score + '/100';
+  }, 50);
+
+  renderFoodGrid();
+}
+
+function selectState(stateKey) {
+  currentState = stateKey;
+  selectedFoodId = null;
+
+  document.querySelectorAll('.state-btn').forEach(b => {
+    const isActive = b.dataset.state === stateKey;
+    b.classList.toggle('active', isActive);
+    b.classList.remove('active');
+    if (isActive) b.classList.add('active'); else b.classList.remove('active');
+  });
+
+  const desc = METABOLIC_STATES[stateKey].desc;
+  document.getElementById('stateDescText').textContent = desc;
+  document.getElementById('analysisResult').classList.add('hidden');
+  document.getElementById('resultScoreBar').style.width = '0%';
+  renderFoodGrid();
+}
+
+// ─────────────────────────────────────────────
+// WEEKLY PLANS DATA
+// ─────────────────────────────────────────────
+const PLANS = [
+  { day:"Monday",    activity:"Morning Yoga — 20 min",  meal:"Oatmeal + Greek Yogurt",  status:"done" },
+  { day:"Tuesday",   activity:"Brisk Walk — 30 min",    meal:"Lentil Soup + Salad",     status:"done" },
+  { day:"Wednesday", activity:"Strength Training",       meal:"Chicken + Sweet Potato",  status:"done" },
+  { day:"Thursday",  activity:"Rest Day",                meal:"Salmon + Quinoa Bowl",    status:"done" },
+  { day:"Friday",    activity:"Cycling — 45 min",        meal:"Chia Pudding + Nuts",     status:"today" },
+  { day:"Saturday",  activity:"Swimming",                meal:"Avocado Salad + Eggs",    status:"upcoming" },
+  { day:"Sunday",    activity:"Active Recovery Walk",    meal:"Greek Yogurt + Banana",   status:"upcoming" },
+];
+
+function renderPlans() {
+  const container = document.getElementById('plansList');
+  if (!container) return;
+  container.innerHTML = PLANS.map(p => {
+    const isDone    = p.status === 'done';
+    const isToday   = p.status === 'today';
+    const bgClass   = isToday ? 'bg-primary-container/40 border-2 border-primary' : isDone ? 'bg-surface-container' : 'bg-surface-container-lowest border border-surface-container-low';
+    const statusEl  = isToday
+      ? `<span class="text-xs font-bold text-primary bg-primary-container px-3 py-1 rounded-full">Today</span>`
+      : isDone
+      ? `<span class="material-symbols-outlined text-primary" style="font-size:18px; font-variation-settings:'FILL' 1;">check_circle</span>`
+      : `<span class="text-xs text-on-surface-variant">Upcoming</span>`;
+    return `
+      <div class="${bgClass} rounded-xl p-5 flex items-center gap-5 card-hover editorial-shadow">
+        <div class="flex-shrink-0 w-14 text-center">
+          <p class="text-xs font-bold ${isToday ? 'text-primary' : 'text-on-surface-variant'}">${p.day.slice(0,3).toUpperCase()}</p>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-on-surface text-sm">${p.activity}</p>
+          <p class="text-xs text-on-surface-variant mt-0.5">🥗 ${p.meal}</p>
+        </div>
+        <div class="flex-shrink-0">${statusEl}</div>
+      </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION & TABS
+// ─────────────────────────────────────────────
+const TABS = ['today','meals','insights','plans'];
+
+function setTab(tab) {
+  TABS.forEach(t => {
+    const panel = document.getElementById(`panel-${t}`);
+    const nav   = document.getElementById(`nav-${t}`);
+    if (panel) panel.classList.toggle('hidden', t !== tab);
+    if (nav)   {
+      nav.classList.toggle('tab-active', t === tab);
+      nav.classList.toggle('tab-inactive', t !== tab);
+    }
+  });
+  if (tab === 'meals') { renderFoodGrid(); }
+  if (tab === 'plans') { renderPlans(); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─────────────────────────────────────────────
+// WALK BUTTON
+// ─────────────────────────────────────────────
+function startWalk() {
+  const btn = document.getElementById('walkBtn');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '⏱ Walk in Progress…';
+  showToast('10-min walk started! Great choice 🌿');
+  setTimeout(() => {
+    btn.textContent = '✓ Walk Complete!';
+    btn.style.background = '#ccebc7';
+    btn.style.color = '#3e583d';
+    showToast('Walk complete! Excellent metabolic boost 🎉');
+  }, 3000);
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    t.style.opacity = '0';
+    t.classList.remove('visible');
+  }, 3200);
+}
+
+// ─────────────────────────────────────────────
+// DARK MODE TOGGLE
+// ─────────────────────────────────────────────
+function toggleDark() {
+  document.documentElement.classList.toggle('dark');
+  const icon = document.querySelector('#darkToggle .material-symbols-outlined');
+  icon.textContent = document.documentElement.classList.contains('dark') ? 'dark_mode' : 'light_mode';
+}
+
+// ─────────────────────────────────────────────
+// LIVE CLOCK
+// ─────────────────────────────────────────────
+function updateClock() {
+  const el = document.getElementById('currentTime');
+  if (!el) return;
+  const now = new Date();
+  el.textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) + ' · ' +
+    now.toLocaleDateString([], { weekday:'short', month:'short', day:'numeric' });
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderFoodGrid();
+  renderPlans();
+});
+
+</script>
+</body>
+</html>
